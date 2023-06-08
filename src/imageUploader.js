@@ -12,16 +12,11 @@ export const imageUploader = {
     })
 
     const ENDPOINT = process.env.ARTWORK_ENDPOINT
-    const response = await fetch(`${ENDPOINT}/token/${tokenId}?mode=thumbnail`, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {},
-    })
-    const base64HTML = await response.text()
+    const artworkUrl = `${ENDPOINT}`
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.setViewport({width: 900, height: 900});
-    await page.goto(`${base64HTML}`, {
+    await page.goto(artworkUrl, {
       "timeout": 180 * 1000,
       "waitUntil" : "networkidle0"
     })
@@ -29,7 +24,7 @@ export const imageUploader = {
     const buf = await page.screenshot()
 
     const uploadedImage = await s3.upload({
-        Bucket: `neort-gallery`,
+        Bucket: `${process.env.AWS_S3_BUCKET_NAME}`,
         Key: `${process.env.AWS_S3_BUCKET_PATH}/${tokenId}.png`,
         Body: buf,
         ContentType: 'image/png'
